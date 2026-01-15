@@ -158,7 +158,7 @@ const NavDropdown = ({ items }: { items: string[] }) => (
     {items.map((item, i) => (
       <a
         key={i}
-        href="#"
+        href="/blogblog"
         className="block px-4 py-3 font-bold text-sm hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors flex justify-between items-center group/item"
       >
         {item}
@@ -382,24 +382,24 @@ export default function Home() {
 
   const creators = [
     {
-      name: "Alex Chen",
-      role: "DevRel",
-      img: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop",
+      name: "Shallu G",
+      role: "Senior Div Centerer",
+      img: "https://images.unsplash.com/photo-1560972550-aba3456b5564?q=80&w=200&auto=format&fit=crop",
     },
     {
-      name: "Sarah Vollo",
-      role: "UX Lead",
-      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop",
+      name: "Shallu G",
+      role: "CSS !important Abuser",
+      img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=200&auto=format&fit=crop",
     },
     {
-      name: "Mike Ross",
-      role: "Founder",
-      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop",
+      name: "Shallu G 2.0",
+      role: "HTML 6 Architect",
+      img: "https://images.unsplash.com/photo-1614583225154-5fcdda07019e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YW5pbWUlMjBnaXJsfGVufDB8fDB8fHww",
     },
     {
-      name: "Lisa Wong",
-      role: "Editor",
-      img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&auto=format&fit=crop",
+      name: "Again Shallu G",
+      role: "console.log('God')",
+      img: "https://images.unsplash.com/photo-1708034677699-6f39d9c59f6e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YW5pbWUlMjBnaXJsfGVufDB8fDB8fHww",
     },
   ];
 
@@ -486,10 +486,11 @@ export default function Home() {
                 variant="ghost"
                 icon={LogIn}
                 className="hidden md:flex"
+                href="/blog"
               >
                 Login
               </NeoButton>
-              <NeoButton variant="primary" icon={User}>
+              <NeoButton variant="primary" icon={User} href="/blog">
                 Sign Up
               </NeoButton>
             </div>
@@ -542,39 +543,44 @@ export default function Home() {
           {/* Hero Section */}
           <section
             id="hero"
-            className="grid lg:grid-cols-12 gap-12 items-center relative"
+            className="grid lg:grid-cols-12 gap-12 items-center relative min-h-[600px]"
           >
-            {/* Random Floating Elements */}
-            <motion.div
-              animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-0 right-[20%] w-16 h-16 bg-yellow-400 rounded-full border-2 border-black z-0 opacity-50 hidden lg:block"
-            />
-            <motion.div
-              animate={{ y: [0, 30, 0], rotate: [0, -10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-10 left-[10%] w-12 h-12 bg-pink-400 transform rotate-45 border-2 border-black z-0 opacity-50 hidden lg:block"
-            />
+            {/* Background Marquee */}
+            <div className="absolute inset-0 -z-10 overflow-hidden flex items-center justify-center pointer-events-none opacity-[0.03] -rotate-6 scale-125">
+              <motion.div
+                animate={{ x: [0, -2000] }}
+                transition={{ repeat: Infinity, ease: "linear", duration: 50 }}
+                className="whitespace-nowrap font-black text-[12rem] uppercase select-none leading-none"
+              >
+                TESTING ME • DISRUPT • CREATE • SHIP • TESTING ME • DISRUPT •
+                CREATE • SHIP •
+              </motion.div>
+            </div>
 
             <div className="lg:col-span-6 relative z-10 space-y-8 order-2 lg:order-1">
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
               >
                 <div className="flex flex-wrap gap-2 mb-6">
                   {["#DESIGN", "#TECH", "#CULTURE"].map((tag, i) => (
                     <motion.span
                       key={i}
-                      whileHover={{ scale: 1.1, rotate: 3 }}
-                      className="bg-black text-white px-3 py-1 rounded-lg font-black text-xs border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors cursor-default"
+                      whileHover={{
+                        scale: 1.1,
+                        rotate: 3,
+                        backgroundColor: "#facc15",
+                        color: "#000",
+                      }}
+                      className="bg-black text-white px-3 py-1 rounded-lg font-black text-xs border-2 border-transparent hover:border-black transition-all cursor-crosshair"
                     >
                       {tag}
                     </motion.span>
                   ))}
                 </div>
 
-                <h1 className="text-6xl md:text-[6rem] font-black leading-[0.9] tracking-tight mb-8 font-display text-black">
+                <h1 className="text-6xl md:text-[6.5rem] font-black leading-[0.85] tracking-tight mb-8 font-display text-black drop-shadow-sm">
                   READ. <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                     CREATE.
@@ -600,14 +606,14 @@ export default function Home() {
                   </span>
                 </h1>
 
-                <p className="text-xl text-gray-700 font-bold max-w-lg leading-relaxed border-l-4 border-black pl-6">
+                <p className="text-xl text-gray-700 font-bold max-w-lg leading-relaxed border-l-8 border-yellow-300 pl-6 mb-8">
                   The blog for those who break things. Discover raw stories,
                   unfiltered tutorials, and the bleeding edge of tech.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
                   <NeoButton
-                    className="h-14 px-8 text-lg hover:rotate-2 transition-transform"
+                    className="h-16 px-10 text-xl hover:rotate-2 transition-transform shadow-[6px_6px_0px_0px_#000]"
                     variant="primary"
                     icon={Sparkles}
                     href="/blog"
@@ -615,7 +621,7 @@ export default function Home() {
                     Start Reading
                   </NeoButton>
                   <NeoButton
-                    className="h-14 px-8 text-lg hover:-rotate-2 transition-transform"
+                    className="h-16 px-10 text-xl hover:-rotate-2 transition-transform"
                     variant="secondary"
                     icon={ArrowRight}
                     href="/blog"
@@ -627,42 +633,67 @@ export default function Home() {
             </div>
 
             <div className="lg:col-span-6 relative order-1 lg:order-2 flex items-center justify-center">
-              <div className="relative w-full max-w-md mx-auto aspect-square">
+              <div className="relative w-full max-w-lg mx-auto aspect-square perspective-1000">
+                {/* Decorative Elements */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5, type: "spring" }}
+                  className="absolute -top-12 -right-12 w-40 h-40 bg-pink-400 rounded-full border-4 border-black z-0 flex items-center justify-center"
+                >
+                  <div className="w-full text-center font-black text-xs transform -rotate-12">
+                    EST. 2026
+                  </div>
+                </motion.div>
+
+                <div className="absolute -bottom-8 -left-8 w-64 h-64 bg-blue-400 rounded-full border-4 border-black -z-10 opacity-20 blur-xl"></div>
+
+                {/* Stacked Cards Effect */}
+                <motion.div
+                  initial={{ rotate: 10, x: 20 }}
+                  animate={{ rotate: 6, x: 10 }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut",
+                  }}
+                  className="absolute inset-0 bg-yellow-300 rounded-[2.5rem] border-4 border-black -z-10"
+                />
+                <motion.div
+                  initial={{ rotate: -5, x: -20 }}
+                  animate={{ rotate: -3, x: -10 }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut",
+                    delay: 0.5,
+                  }}
+                  className="absolute inset-0 bg-purple-400 rounded-[2.5rem] border-4 border-black -z-20"
+                />
+
                 {/* Decorative Sticker */}
                 <motion.div
-                  animate={{ rotate: [0, 10, 0, -10, 0] }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  className="absolute -top-8 -right-8 z-20"
+                  animate={{ rotate: [10, 15, 10], scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute -top-6 -right-6 z-30 cursor-pointer"
                 >
-                  <div className="bg-white border-2 border-black px-4 py-2 rounded-full font-black text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-12">
+                  <div className="bg-white border-4 border-black px-6 py-3 rounded-full font-black text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-12 flex items-center gap-2 hover:bg-yellow-300 transition-colors">
+                    <Sparkles size={16} fill="black" />
                     Fresh Content!
                   </div>
                 </motion.div>
 
+                {/* Main Card */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="w-full h-full rounded-2xl border-4 border-black overflow-hidden shadow-[12px_12px_0px_0px_#000] relative z-10 bg-white"
+                  className="w-full h-full rounded-[2.5rem] border-4 border-black overflow-hidden shadow-[16px_16px_0px_0px_#000] relative z-20 bg-white"
                 >
                   <ImageSlider images={heroImages} />
                 </motion.div>
-
-                {/* Abstract Background Elements */}
-                <motion.div
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-300 rounded-full border-2 border-black -z-10"
-                />
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 4, repeat: Infinity, delay: 1 }}
-                  className="absolute -bottom-4 -left-4 w-32 h-32 bg-pink-300 border-2 border-black rounded-full -z-10"
-                />
               </div>
             </div>
           </section>
@@ -768,6 +799,7 @@ export default function Home() {
                     key={i}
                     whileHover={{ scale: 1.1 }}
                     className="flex flex-col items-center gap-4 group cursor-pointer"
+                    onClick={() => (window.location.href = "/blog")}
                   >
                     <div className="w-32 h-32 rounded-full border-4 border-yellow-300 p-1 bg-white relative">
                       <img
