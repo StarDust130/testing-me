@@ -544,6 +544,18 @@ export default function Home() {
             id="hero"
             className="grid lg:grid-cols-12 gap-12 items-center relative"
           >
+            {/* Random Floating Elements */}
+            <motion.div
+              animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-0 right-[20%] w-16 h-16 bg-yellow-400 rounded-full border-2 border-black z-0 opacity-50 hidden lg:block"
+            />
+            <motion.div
+              animate={{ y: [0, 30, 0], rotate: [0, -10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-10 left-[10%] w-12 h-12 bg-pink-400 transform rotate-45 border-2 border-black z-0 opacity-50 hidden lg:block"
+            />
+
             <div className="lg:col-span-6 relative z-10 space-y-8 order-2 lg:order-1">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -552,12 +564,13 @@ export default function Home() {
               >
                 <div className="flex flex-wrap gap-2 mb-6">
                   {["#DESIGN", "#TECH", "#CULTURE"].map((tag, i) => (
-                    <span
+                    <motion.span
                       key={i}
-                      className="bg-black text-white px-3 py-1 rounded-lg font-black text-xs border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors"
+                      whileHover={{ scale: 1.1, rotate: 3 }}
+                      className="bg-black text-white px-3 py-1 rounded-lg font-black text-xs border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors cursor-default"
                     >
                       {tag}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
 
@@ -569,7 +582,10 @@ export default function Home() {
                   <br />
                   <span className="relative inline-block">
                     DISRUPT.
-                    <svg
+                    <motion.svg
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 1.5, delay: 0.5 }}
                       className="absolute w-full h-4 -bottom-1 left-0 text-yellow-300 -z-10"
                       viewBox="0 0 100 10"
                       preserveAspectRatio="none"
@@ -580,7 +596,7 @@ export default function Home() {
                         strokeWidth="8"
                         fill="none"
                       />
-                    </svg>
+                    </motion.svg>
                   </span>
                 </h1>
 
@@ -591,7 +607,7 @@ export default function Home() {
 
                 <div className="flex flex-wrap gap-4 pt-4">
                   <NeoButton
-                    className="h-14 px-8 text-lg"
+                    className="h-14 px-8 text-lg hover:rotate-2 transition-transform"
                     variant="primary"
                     icon={Sparkles}
                     href="/blog"
@@ -599,9 +615,10 @@ export default function Home() {
                     Start Reading
                   </NeoButton>
                   <NeoButton
-                    className="h-14 px-8 text-lg"
+                    className="h-14 px-8 text-lg hover:-rotate-2 transition-transform"
                     variant="secondary"
                     icon={ArrowRight}
+                    href="/blog"
                   >
                     Our Mission
                   </NeoButton>
@@ -611,18 +628,41 @@ export default function Home() {
 
             <div className="lg:col-span-6 relative order-1 lg:order-2 flex items-center justify-center">
               <div className="relative w-full max-w-md mx-auto aspect-square">
+                {/* Decorative Sticker */}
+                <motion.div
+                  animate={{ rotate: [0, 10, 0, -10, 0] }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  className="absolute -top-8 -right-8 z-20"
+                >
+                  <div className="bg-white border-2 border-black px-4 py-2 rounded-full font-black text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-12">
+                    Fresh Content!
+                  </div>
+                </motion.div>
+
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="w-full h-full rounded-2xl border-4 border-black overflow-hidden shadow-[12px_12px_0px_0px_#000]"
+                  className="w-full h-full rounded-2xl border-4 border-black overflow-hidden shadow-[12px_12px_0px_0px_#000] relative z-10 bg-white"
                 >
                   <ImageSlider images={heroImages} />
                 </motion.div>
 
                 {/* Abstract Background Elements */}
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-300 rounded-full border-2 border-black -z-10"></div>
-                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-pink-300 border-2 border-black rounded-full -z-10"></div>
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-300 rounded-full border-2 border-black -z-10"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+                  className="absolute -bottom-4 -left-4 w-32 h-32 bg-pink-300 border-2 border-black rounded-full -z-10"
+                />
               </div>
             </div>
           </section>
@@ -753,6 +793,7 @@ export default function Home() {
                 <NeoButton
                   variant="secondary"
                   className="border-white text-black hover:bg-yellow-300"
+                  href="/blog"
                 >
                   Join the Team
                 </NeoButton>
@@ -805,6 +846,7 @@ export default function Home() {
                   <div className="mt-10 pt-6 border-t-4 border-black border-dashed flex justify-center">
                     <NeoButton
                       variant="secondary"
+                      href="/blog"
                       className="w-full justify-center"
                     >
                       Load more scratches
@@ -833,6 +875,7 @@ export default function Home() {
                   />
                   <NeoButton
                     className="w-full justify-center bg-black text-white hover:bg-gray-800"
+                    href="/blog"
                     variant="primary"
                   >
                     Access Granted
