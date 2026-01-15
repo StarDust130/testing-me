@@ -2,25 +2,91 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --border-color: #000000;
+  --shadow-color: #000000;
+  --accent-blue: #3b82f6;
+  --accent-yellow: #facc15;
+  --accent-pink: #f472b6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-display: var(--font-space);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Neo-Brutalism Utilities */
+.nb-shadow {
+  box-shadow: 4px 4px 0px 0px var(--shadow-color);
+}
+
+.nb-shadow-lg {
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
+}
+
+.nb-shadow-xl {
+  box-shadow: 8px 8px 0px 0px var(--shadow-color);
+}
+
+.nb-border {
+  border: 2px solid var(--border-color);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+  background: #f1f5f9;
+  border-left: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border: 2px solid #000;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Selection */
+::selection {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Utility for hover effects */
+.hover-lift {
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-lift:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
+}
+
+.hover-lift:active {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px 0px var(--shadow-color);
 }
