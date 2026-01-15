@@ -824,7 +824,7 @@ export default function Home() {
               <div className="mt-16 text-center">
                 <NeoButton
                   variant="secondary"
-                  className="border-white text-black hover:bg-yellow-300"
+                  className="border-white justify-center text-black hover:bg-yellow-300 px-4 py-2 text-sm"
                   href="/blog"
                 >
                   Join the Team
