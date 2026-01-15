@@ -225,18 +225,7 @@ export default function BlogListing() {
             </motion.p>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="w-full bg-black h-4 rounded-full overflow-hidden border-2 border-black relative"
-          >
-            <motion.div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-300 via-pink-500 to-blue-500 w-full"
-              animate={{ x: ["-100%", "100%"] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            />
-          </motion.div>
+          
         </section>
 
         {/* Categories Bar */}
