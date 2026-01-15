@@ -167,7 +167,7 @@ export const blogs: BlogPost[] = [
       name: "Alex Chen",
       role: "AI Researcher",
       image:
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150",
       bio: "Teaching robots to paint.",
     },
     content: [
