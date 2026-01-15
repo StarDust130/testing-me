@@ -299,7 +299,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images }) => {
   }, [images.length]);
 
   return (
-    <div className="relative w-full h-full rounded-2xl border-2 border-black overflow-hidden nb-shadow-lg bg-white">
+    <div className="relative w-full h-full rounded-2xl border-2 border-black overflow-hidden bg-white">
       <AnimatePresence mode="wait">
         <motion.img
           key={currentIndex}
@@ -313,37 +313,15 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images }) => {
         />
       </AnimatePresence>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10 p-2 bg-white border-2 border-black rounded-full shadow-[4px_4px_0px_0px_#000]">
-        {images.map((_: string, idx: number) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentIndex(idx)}
-            className={`w-3 h-3 rounded-full border-2 border-black transition-all ${
-              idx === currentIndex
-                ? "bg-blue-500 scale-125"
-                : "bg-white hover:bg-gray-200"
-            }`}
-          />
-        ))}
-      </div>
-
-      <div className="absolute top-1/2 w-full flex justify-between px-4 -translate-y-1/2 pointer-events-none">
-        <button
-          onClick={() =>
-            setCurrentIndex(
-              (prev) => (prev - 1 + images.length) % images.length
-            )
-          }
-          className="pointer-events-auto bg-white border-2 border-black p-3 rounded-xl hover:bg-yellow-300 active:translate-y-1 transition-all shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] active:shadow-none"
-        >
-          <ChevronLeft size={24} className="text-black" />
-        </button>
-        <button
-          onClick={() => setCurrentIndex((prev) => (prev + 1) % images.length)}
-          className="pointer-events-auto bg-white border-2 border-black p-3 rounded-xl hover:bg-yellow-300 active:translate-y-1 transition-all shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] active:shadow-none"
-        >
-          <ChevronRight size={24} className="text-black" />
-        </button>
+      {/* Progress Bar */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-black/10 z-10">
+        <motion.div
+          key={currentIndex}
+          className="h-full bg-yellow-400"
+          initial={{ width: "0%" }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 4, ease: "linear" }}
+        />
       </div>
     </div>
   );
@@ -631,46 +609,20 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <div className="lg:col-span-6 min-h-[400px] lg:min-h-[600px] relative order-1 lg:order-2 flex items-center justify-center">
-              {/* Cool Image Grid Layout for Hero */}
-              <div className="relative w-full h-full max-w-lg lg:max-w-none mx-auto">
-                {/* Decorative background shape */}
+            <div className="lg:col-span-6 relative order-1 lg:order-2 flex items-center justify-center">
+              <div className="relative w-full max-w-md mx-auto aspect-square">
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 50,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-0 pointer-events-none"
-                />
-
-                {/* Left Floating Card - Hidden on very small screens */}
-                <div className="absolute top-0 right-10 w-48 h-60 lg:w-64 lg:h-80 z-20 hidden sm:block">
-                  <NeoCard className="h-full p-2 bg-yellow-300 rotate-6 hover:rotate-0 transition-transform">
-                    <img
-                      src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop"
-                      className="w-full h-full object-cover rounded-xl border-2 border-black grayscale hover:grayscale-0 transition-all"
-                      alt="Tech 1"
-                    />
-                  </NeoCard>
-                </div>
-
-                {/* Right Floating Card - Hidden on very small screens */}
-                <div className="absolute bottom-10 left-10 w-56 h-48 lg:w-72 lg:h-64 z-10 hidden sm:block">
-                  <NeoCard className="h-full p-2 bg-pink-300 -rotate-3 hover:rotate-0 transition-transform">
-                    <img
-                      src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1000&auto=format&fit=crop"
-                      className="w-full h-full object-cover rounded-xl border-2 border-black grayscale hover:grayscale-0 transition-all"
-                      alt="Tech 2"
-                    />
-                  </NeoCard>
-                </div>
-
-                {/* Center Main Slider */}
-                <div className="relative z-30 w-full aspect-square sm:w-80 sm:h-80 lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-80 lg:aspect-square mx-auto">
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="w-full h-full rounded-2xl border-4 border-black overflow-hidden shadow-[12px_12px_0px_0px_#000]"
+                >
                   <ImageSlider images={heroImages} />
-                </div>
+                </motion.div>
+
+                {/* Abstract Background Elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-300 rounded-full border-2 border-black -z-10"></div>
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-pink-300 border-2 border-black rounded-full -z-10"></div>
               </div>
             </div>
           </section>
@@ -917,7 +869,14 @@ export default function Home() {
             {Array(10)
               .fill("Testing Me • Disrupt • Create • Ship •")
               .map((text, i) => (
-                <span key={i}>{text}</span>
+                <div key={i} className="flex items-center gap-6 mx-4">
+                  <span>{text}</span>
+                  <img
+                    src="/logo.svg"
+                    alt="Brand Logo"
+                    className="h-10 w-10 bg-white border-2 border-black rounded-lg p-1 object-contain shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  />
+                </div>
               ))}
           </motion.div>
         </div>

@@ -111,8 +111,13 @@ export default function BlogPost() {
           <div className="h-6 w-px bg-gray-300"></div>
           <Link
             href="/"
-            className="font-black text-lg tracking-tight hover:text-blue-600"
+            className="flex items-center gap-2 font-black text-lg tracking-tight hover:text-blue-600"
           >
+            <img
+              src="/logo.svg"
+              alt="Logo"
+              className="w-8 h-8 bg-white border-2 border-black rounded-md p-0.5 object-contain"
+            />
             TestingMe.
           </Link>
         </div>
@@ -332,8 +337,31 @@ export default function BlogPost() {
       </main>
 
       {/* Footer Simple */}
-      <footer className="bg-black text-gray-400 py-12 text-center text-sm font-bold">
-        <p>&copy; 2026 TestingMe.</p>
+      <footer className="border-t-4 border-black bg-yellow-300 pt-0 pb-12 overflow-hidden relative">
+        {/* Marquee */}
+        <div className="bg-black text-white py-3 overflow-hidden border-b-4 border-black">
+          <motion.div
+            animate={{ x: [0, -1000] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
+            className="flex gap-8 whitespace-nowrap font-black text-2xl uppercase tracking-widest"
+          >
+            {Array(10)
+              .fill("Testing Me • Disrupt • Create • Ship •")
+              .map((text, i) => (
+                <div key={i} className="flex items-center gap-6 mx-4">
+                  <span>{text}</span>
+                  <img
+                    src="/logo.svg"
+                    alt="Brand Logo"
+                    className="h-10 w-10 bg-white border-2 border-black rounded-lg p-1 object-contain shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  />
+                </div>
+              ))}
+          </motion.div>
+        </div>
+        <div className="text-center pt-8 font-bold">
+          <p>&copy; 2026 TestingMe.</p>
+        </div>
       </footer>
     </div>
   );

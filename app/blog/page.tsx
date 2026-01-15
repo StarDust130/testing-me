@@ -136,9 +136,11 @@ export default function BlogListing() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b-2 border-black px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative bg-yellow-300 border-2 border-black px-2 py-1 rounded-lg">
-              <span className="font-black text-xs">TM</span>
-            </div>
+            <img
+              src="/logo.svg"
+              alt="Logo"
+              className="w-10 h-10 bg-white border-2 border-black rounded-lg p-1 object-contain shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            />
             <span className="font-black text-xl group-hover:text-blue-600 transition-colors">
               TestingMe / Blog
             </span>
@@ -224,8 +226,6 @@ export default function BlogListing() {
               <span className="text-black">One hot take at a time.</span>
             </motion.p>
           </div>
-
-          
         </section>
 
         {/* Categories Bar */}
@@ -359,17 +359,44 @@ export default function BlogListing() {
       )}
 
       {/* Footer */}
-      <footer className="bg-black text-white py-12 px-6 border-t-4 border-yellow-300">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="text-2xl font-black">TestingMe.</div>
-          <div className="flex gap-6 font-bold text-gray-400">
-            <a href="#" className="hover:text-white">
+      <footer className="border-t-4 border-black bg-yellow-300 pt-0 pb-12 overflow-hidden relative">
+        {/* Marquee */}
+        <div className="bg-black text-white py-3 overflow-hidden border-b-4 border-black">
+          <motion.div
+            animate={{ x: [0, -1000] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
+            className="flex gap-8 whitespace-nowrap font-black text-2xl uppercase tracking-widest"
+          >
+            {Array(10)
+              .fill("Testing Me • Disrupt • Create • Ship •")
+              .map((text, i) => (
+                <div key={i} className="flex items-center gap-6 mx-4">
+                  <span>{text}</span>
+                  <img
+                    src="/logo.svg"
+                    alt="Brand Logo"
+                    className="h-10 w-10 bg-white border-2 border-black rounded-lg p-1 object-contain shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  />
+                </div>
+              ))}
+          </motion.div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 pt-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-8">
+          <div>
+            <div className="text-4xl font-black mb-2">TestingMe.</div>
+            <p className="font-bold text-black/60">
+              We build tools for the builders.
+            </p>
+          </div>
+          <div className="flex gap-6 font-bold">
+            <a href="#" className="hover:underline">
               Twitter
             </a>
-            <a href="#" className="hover:text-white">
+            <a href="#" className="hover:underline">
               GitHub
             </a>
-            <a href="#" className="hover:text-white">
+            <a href="#" className="hover:underline">
               RSS
             </a>
           </div>
