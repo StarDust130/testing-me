@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { blogs } from "./lib/blogData";
+import Link from "next/link";
 
 // --- Types ---
 interface NeoButtonProps {
@@ -342,9 +343,10 @@ export default function Home() {
   }, []);
 
   const heroImages = [
-    "https://images.unsplash.com/photo-1499750310159-5254f4122cce?q=80&w=2000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=2000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1482160549825-59d1b23cb208?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGFydHxlbnwwfHwwfHx8MA%3D%3D",
+    "https://images.unsplash.com/flagged/photo-1572392640988-ba48d1a74457?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXJ0fGVufDB8fDB8fHww",
+    "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YW5pbWUlMjBnaXJsfGVufDB8fDB8fHww",
+    "https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGFydHxlbnwwfHwwfHx8MA%3D%3D",
   ];
 
   const featuredStories = blogs.slice(0, 4).map((b) => ({
@@ -710,24 +712,25 @@ export default function Home() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {trendingTopics.map((topic, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -10, rotate: i % 2 === 0 ? 2 : -2 }}
-                  className="relative aspect-square rounded-2xl border-2 border-black overflow-hidden group cursor-pointer shadow-[6px_6px_0px_0px_#000]"
-                >
-                  <img
-                    src={topic.image}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0"
-                    alt=""
-                  />
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 border-t-2 border-black translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <h3 className="font-black text-center">{topic.title}</h3>
-                  </div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-300 px-3 py-1 border-2 border-black rounded-lg font-black -rotate-6 group-hover:opacity-0 transition-opacity">
-                    {topic.title}
-                  </div>
-                </motion.div>
+                <Link key={i} href="/blog">
+                  <motion.div
+                    whileHover={{ y: -10, rotate: i % 2 === 0 ? 2 : -2 }}
+                    className="relative aspect-square rounded-2xl border-2 border-black overflow-hidden group cursor-pointer shadow-[6px_6px_0px_0px_#000]"
+                  >
+                    <img
+                      src={topic.image}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0"
+                      alt=""
+                    />
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 border-t-2 border-black translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <h3 className="font-black text-center">{topic.title}</h3>
+                    </div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-300 px-3 py-1 border-2 border-black rounded-lg font-black -rotate-6 group-hover:opacity-0 transition-opacity">
+                      {topic.title}
+                    </div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </section>
@@ -871,7 +874,9 @@ export default function Home() {
                         tag: "CSS",
                       },
                     ].map((post, i) => (
-                      <PostItem key={i} {...post} />
+                      <Link key={i} href="/blog">
+                        <PostItem {...post} />
+                      </Link>
                     ))}
                   </div>
 
