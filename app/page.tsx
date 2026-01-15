@@ -1,667 +1,1011 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
   PenLine,
   Bookmark,
-  Flame,
   Sparkles,
   Calendar,
-  Tag,
   ArrowRight,
   Menu,
   BookOpen,
-  Share2,
-  ChevronDown,
-  CheckCircle2,
+  Twitter,
+  Linkedin,
+  Github,
+  Mail,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  User,
+  LogIn,
+  X,
 } from "lucide-react";
+import { blogs } from "./lib/blogData";
+
+// --- Types ---
+interface NeoButtonProps {
+  children: React.ReactNode;
+  className?: string;
+  icon?: React.ElementType;
+  variant?: "primary" | "secondary" | "ghost";
+  onClick?: () => void;
+  href?: string;
+}
+
+interface NeoCardProps {
+  children: React.ReactNode;
+  className?: string;
+  hover?: boolean;
+}
+
+interface PostItemProps {
+  title: string;
+  meta: string;
+  tag?: string;
+}
+
+interface StoryCardProps {
+  id?: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  image: string;
+  stats: {
+    date: string;
+    readTime: string;
+    trend: string;
+  };
+  tags?: string[];
+}
+
+interface ImageSliderProps {
+  images: string[];
+}
 
 // --- Reusable Components ---
 
-const BrutalButton = ({ children, className, icon: Icon }) => (
-  <motion.button
-    whileHover={{
-      scale: 1.05,
-      translateX: 2,
-      translateY: 2,
-      boxShadow: "4px 4px 0px rgba(0, 0, 0, 1)",
-    }}
-    whileTap={{
-      scale: 0.95,
-      translateX: 0,
-      translateY: 0,
-      boxShadow: "0px 0px 0px rgba(0,0,0,0)",
-    }}
-    className={`flex items-center gap-2 px-6 py-3 rounded-full border-2 border-black bg-white text-black font-bold uppercase tracking-wider transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${className}`}
+const NeoButton: React.FC<NeoButtonProps> = ({
+  children,
+  className = "",
+  icon: Icon,
+  variant = "primary",
+  onClick,
+  href,
+}) => {
+  const variants = {
+    primary: "bg-[#3b82f6] text-white hover:bg-[#2563eb] active:bg-[#1d4ed8]",
+    secondary: "bg-white text-black hover:bg-yellow-300",
+    ghost:
+      "bg-transparent text-black hover:bg-gray-100 border-transparent shadow-none hover:shadow-none hover:translate-x-0 hover:translate-y-0",
+  };
+
+  const isGhost = variant === "ghost";
+
+  const Content = () => (
+    <>
+      {Icon && <Icon size={20} strokeWidth={2.5} />}
+      {children}
+    </>
+  );
+
+  const buttonClasses = `
+    relative px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors duration-200 select-none cursor-pointer
+    ${!isGhost ? "border-2 border-black nb-shadow" : ""}
+    ${variants[variant]}
+    ${className}
+  `;
+
+  if (href) {
+    return (
+      <motion.a
+        href={href}
+        whileHover={
+          !isGhost ? { x: -4, y: -4, boxShadow: "8px 8px 0px 0px #000" } : {}
+        }
+        whileTap={
+          !isGhost
+            ? { x: 0, y: 0, boxShadow: "0px 0px 0px 0px #000" }
+            : { scale: 0.95 }
+        }
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        className={buttonClasses}
+      >
+        <Content />
+      </motion.a>
+    );
+  }
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={
+        !isGhost ? { x: -4, y: -4, boxShadow: "8px 8px 0px 0px #000" } : {}
+      }
+      whileTap={
+        !isGhost
+          ? { x: 0, y: 0, boxShadow: "0px 0px 0px 0px #000" }
+          : { scale: 0.95 }
+      }
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      className={buttonClasses}
+    >
+      <Content />
+    </motion.button>
+  );
+};
+
+const NeoCard: React.FC<NeoCardProps> = ({
+  children,
+  className = "",
+  hover = true,
+}) => (
+  <motion.div
+    whileHover={
+      hover
+        ? { y: -8, x: -4, boxShadow: "12px 12px 0px 0px #000", rotate: -1 }
+        : {}
+    }
+    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+    className={`bg-white border-2 border-black rounded-2xl nb-shadow-lg p-6 ${className}`}
   >
-    {Icon && <Icon size={18} />}
     {children}
-  </motion.button>
+  </motion.div>
 );
 
-const PostItem = ({ title, meta, tag, accent = "bg-sky-200" }) => (
-  <div className="flex items-start gap-4 py-3 border-b-2 border-black last:border-0 hover:bg-sky-50 transition-colors cursor-pointer group">
-    <motion.div
-      whileHover={{ rotate: -6, scale: 1.05 }}
-      className={`w-10 h-10 rounded-full border-2 border-black flex items-center justify-center flex-shrink-0 ${accent}`}
+const NavDropdown = ({ items }: { items: string[] }) => (
+  <div className="absolute top-full left-0 mt-4 w-56 bg-white border-2 border-black rounded-xl p-2 shadow-[8px_8px_0px_0px_#000] z-50 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out">
+    {items.map((item, i) => (
+      <a
+        key={i}
+        href="#"
+        className="block px-4 py-3 font-bold text-sm hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors flex justify-between items-center group/item"
+      >
+        {item}
+        <ArrowRight
+          size={14}
+          className="opacity-0 group-hover/item:opacity-100 -translate-x-2 group-hover/item:translate-x-0 transition-all"
+        />
+      </a>
+    ))}
+  </div>
+);
+
+const PostItem: React.FC<PostItemProps> = ({ title, meta, tag }) => (
+  <motion.div
+    whileHover={{ x: -2, y: -2, boxShadow: "5px 5px 0px 0px #000" }}
+    className="flex items-start gap-4 p-4 rounded-xl border-2 border-black bg-white transition-all cursor-pointer group hover:bg-yellow-100"
+  >
+    <div
+      className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 bg-blue-500 border-2 border-black shadow-[2px_2px_0px_0px_#000]`}
     >
-      <Bookmark size={16} className="text-black" />
-    </motion.div>
+      <Bookmark size={20} className="text-white" strokeWidth={2.5} />
+    </div>
     <div className="flex-1">
-      <h4 className="font-black text-black text-sm leading-tight group-hover:underline decoration-2 underline-offset-2">
+      <h4 className="font-bold text-black text-[15px] leading-snug group-hover:text-blue-600 transition-colors">
         {title}
       </h4>
-      <p className="text-[11px] font-mono font-bold text-gray-500 mt-1 uppercase flex items-center gap-2">
-        <Calendar size={12} /> {meta}
+      <p className="text-[13px] text-gray-600 mt-1 flex items-center gap-2 font-medium">
+        <Calendar size={12} strokeWidth={2.5} /> {meta}
       </p>
       {tag && (
-        <span className="inline-block mt-2 text-[10px] uppercase font-black tracking-widest px-2 py-1 bg-black text-white">
+        <span className="inline-block mt-2 text-[11px] font-bold px-3 py-1 bg-black text-white rounded-md">
           {tag}
         </span>
       )}
     </div>
-  </div>
-);
-
-const StoryCard = ({ category, title, excerpt, image, stats, tags = [] }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 24 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.35 }}
-    viewport={{ once: true }}
-    className="relative flex flex-col bg-white border-4 border-black rounded-3xl overflow-hidden shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:shadow-[14px_14px_0px_0px_rgba(0,0,0,1)] transition-all duration-300"
-  >
-    <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-blue-500 to-blue-700" />
-    <div className="absolute top-6 left-6 -translate-y-1/2 bg-[#dbeafe] border-2 border-black px-5 py-1 rounded-full z-10">
-      <span className="font-black uppercase text-xs tracking-widest flex items-center gap-2">
-        <PenLine size={14} /> {category}
-      </span>
-    </div>
-
-    <div className="relative w-full aspect-[4/3] bg-slate-900 border-b-4 border-black overflow-hidden">
-      <img src={image} alt={title} className="w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-      <div className="absolute bottom-3 left-3 flex gap-2 text-[10px] uppercase font-black text-white">
-        {tags.map((tag, idx) => (
-          <span
-            key={idx}
-            className="bg-black/70 px-2 py-1 border border-white/30"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-      <div className="absolute top-3 right-3 bg-white text-black text-[10px] font-black uppercase px-2 py-1 rounded-full border border-black">
-        {stats.readTime}
-      </div>
-    </div>
-
-    <div className="p-6 flex-1 flex flex-col gap-4">
-      <h3 className="text-2xl font-black leading-tight uppercase">{title}</h3>
-      <p className="text-sm font-semibold text-gray-700 leading-relaxed flex-1">
-        {excerpt}
-      </p>
-      <div className="flex flex-wrap items-center gap-3 text-xs font-mono uppercase">
-        <span className="bg-black text-white px-2 py-1">{stats.date}</span>
-        <span className="flex items-center gap-1 text-blue-600">
-          <Sparkles size={14} /> {stats.trend}
-        </span>
-      </div>
-    </div>
-
-    <div className="border-t-2 border-black p-4 flex items-center justify-between font-black uppercase text-xs tracking-widest bg-[#e0f2fe]">
-      <span className="flex items-center gap-2">
-        <BookOpen size={14} /> Read Story
-      </span>
-      <ArrowRight size={16} />
-    </div>
   </motion.div>
 );
 
+const StoryCard: React.FC<StoryCardProps> = ({
+  id,
+  category,
+  title,
+  excerpt,
+  image,
+  stats,
+  tags = [],
+}) => (
+  <a href={`/blog/${id || 1}`} className="block h-full">
+    <motion.div
+      className="relative flex flex-col group h-full"
+      whileHover="hover"
+    >
+      <motion.div
+        variants={{
+          hover: { y: -8, x: -4, boxShadow: "10px 10px 0px 0px #000" },
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="bg-white border-2 border-black rounded-3xl nb-shadow-lg overflow-hidden flex flex-col h-full bg-white relative z-10"
+      >
+        <div className="absolute top-4 left-4 z-10">
+          <motion.span
+            variants={{ hover: { rotate: -3, scale: 1.1 } }}
+            className="bg-yellow-300 border-2 border-black px-3 py-1 rounded-lg font-bold text-xs flex items-center gap-2 text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <PenLine size={14} strokeWidth={2.5} /> {category}
+          </motion.span>
+        </div>
+
+        <div className="relative w-full aspect-4/3 border-b-2 border-black overflow-hidden bg-gray-100">
+          <motion.img
+            variants={{ hover: { scale: 1.1 } }}
+            transition={{ duration: 0.4 }}
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-4 right-4 bg-white border-2 border-black px-3 py-1 rounded-lg font-bold text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+            {stats.readTime}
+          </div>
+
+          <div className="absolute bottom-4 left-4 flex gap-2">
+            {tags.map((tag, idx) => (
+              <span
+                key={idx}
+                className="bg-black text-white text-[10px] font-bold px-2 py-1 rounded-md border border-black"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6 flex-1 flex flex-col gap-4">
+          <h3 className="text-2xl font-black leading-tight text-black font-display group-hover:text-blue-600 transition-colors">
+            {title}
+          </h3>
+          <p className="text-sm text-gray-600 leading-relaxed font-medium flex-1">
+            {excerpt}
+          </p>
+
+          <div className="flex items-center justify-between mt-auto pt-4 border-t-2 border-gray-100">
+            <span className="font-bold text-xs text-gray-500">
+              {stats.date}
+            </span>
+            <span className="flex items-center gap-1 text-black font-bold text-xs bg-green-200 px-2 py-1 rounded-md border-2 border-black">
+              <Sparkles size={12} strokeWidth={2.5} /> {stats.trend}
+            </span>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-gray-50 border-t-2 border-black flex items-center justify-between font-bold text-sm text-black group-hover:bg-blue-300 transition-colors">
+          <span className="flex items-center gap-2">
+            <BookOpen size={16} strokeWidth={2.5} /> Read Article
+          </span>
+          <motion.div variants={{ hover: { x: 5 } }}>
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute inset-0 bg-blue-500 rounded-3xl border-2 border-black z-0"
+        initial={{ opacity: 0, x: 0, y: 0 }}
+        variants={{ hover: { opacity: 1, x: 8, y: 8 } }}
+      />
+    </motion.div>
+  </a>
+);
+
+const ImageSlider: React.FC<ImageSliderProps> = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  return (
+    <div className="relative w-full h-full rounded-2xl border-2 border-black overflow-hidden nb-shadow-lg bg-white">
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={currentIndex}
+          src={images[currentIndex]}
+          alt="Hero slide"
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full h-full object-cover"
+        />
+      </AnimatePresence>
+
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10 p-2 bg-white border-2 border-black rounded-full shadow-[4px_4px_0px_0px_#000]">
+        {images.map((_: string, idx: number) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            className={`w-3 h-3 rounded-full border-2 border-black transition-all ${
+              idx === currentIndex
+                ? "bg-blue-500 scale-125"
+                : "bg-white hover:bg-gray-200"
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="absolute top-1/2 w-full flex justify-between px-4 -translate-y-1/2 pointer-events-none">
+        <button
+          onClick={() =>
+            setCurrentIndex(
+              (prev) => (prev - 1 + images.length) % images.length
+            )
+          }
+          className="pointer-events-auto bg-white border-2 border-black p-3 rounded-xl hover:bg-yellow-300 active:translate-y-1 transition-all shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] active:shadow-none"
+        >
+          <ChevronLeft size={24} className="text-black" />
+        </button>
+        <button
+          onClick={() => setCurrentIndex((prev) => (prev + 1) % images.length)}
+          className="pointer-events-auto bg-white border-2 border-black p-3 rounded-xl hover:bg-yellow-300 active:translate-y-1 transition-all shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] active:shadow-none"
+        >
+          <ChevronRight size={24} className="text-black" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // --- Main Layout ---
 
-export default function PodcastUI() {
-  const featuredStories = [
+export default function Home() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const heroImages = [
+    "https://images.unsplash.com/photo-1499750310159-5254f4122cce?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2000&auto=format&fit=crop",
+  ];
+
+  const featuredStories = blogs.slice(0, 4).map((b) => ({
+    id: b.id,
+    category: b.category,
+    title: b.title,
+    excerpt: b.excerpt,
+    image: b.image,
+    stats: { date: b.date, readTime: b.readTime, trend: b.trend },
+    tags: b.tags,
+  }));
+
+  const trendingTopics = [
     {
-      category: "Blueprints",
-      title: "Design Systems that Scale Without Getting Boring",
-      excerpt:
-        "A visual playbook for keeping components fresh while keeping engineers sane.",
       image:
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2070&auto=format&fit=crop",
-      stats: {
-        date: "Jan 14, 2026",
-        readTime: "8 min read",
-        trend: "Trending #2",
-      },
-      tags: ["UI", "Systems", "Ops"],
+        "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2000&auto=format&fit=crop",
+      title: "React Patterns",
     },
     {
-      category: "Strategy",
-      title: "Why Blue Brands Convert Better in 2026",
-      excerpt:
-        "Color psychology, motion pacing, and contrast ratios that keep users clicking.",
       image:
-        "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=2070&auto=format&fit=crop",
-      stats: {
-        date: "Jan 11, 2026",
-        readTime: "6 min read",
-        trend: "Hot",
-      },
-      tags: ["Brand", "Color", "Conversion"],
+        "https://images.unsplash.com/photo-1627398242454-45a1465c2479?q=80&w=2000&auto=format&fit=crop",
+      title: "Web 3.0",
     },
     {
-      category: "Workflow",
-      title: "Shipping Faster with Editorial Sprints",
-      excerpt:
-        "Borrow sprint rituals from product to keep your content pipeline predictable.",
       image:
-        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop",
-      stats: {
-        date: "Jan 09, 2026",
-        readTime: "7 min read",
-        trend: "Editor Pick",
-      },
-      tags: ["Process", "Teams", "Velocity"],
+        "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop",
+      title: "AI Gen",
     },
     {
-      category: "Field Notes",
-      title: "Night Mode Writing: Routines for Deep Focus",
-      excerpt:
-        "Lighting, soundscapes, and micro-breaks that keep late sessions crisp.",
       image:
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2070&auto=format&fit=crop",
-      stats: {
-        date: "Jan 07, 2026",
-        readTime: "5 min read",
-        trend: "Rising",
-      },
-      tags: ["Writing", "Habits", "Focus"],
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000&auto=format&fit=crop",
+      title: "CyberSec",
     },
   ];
 
-  const trendingPosts = [
+  const creators = [
     {
-      title:
-        "How to build an unstoppable note-taking system that survives chaos",
-      meta: "Jan 14, 2026 - 6 min read",
-      tag: "Systems",
-      accent: "bg-sky-200",
+      name: "Alex Chen",
+      role: "DevRel",
+      img: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop",
     },
     {
-      title: "The 3-part formula behind newsletters people actually finish",
-      meta: "Jan 10, 2026 - 5 min read",
-      tag: "Newsletter",
-      accent: "bg-cyan-200",
+      name: "Sarah Vollo",
+      role: "UX Lead",
+      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop",
     },
     {
-      title:
-        "Why personal websites are the new resumes (and how to style yours)",
-      meta: "Jan 09, 2026 - 8 min read",
-      tag: "Career",
-      accent: "bg-blue-200",
+      name: "Mike Ross",
+      role: "Founder",
+      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop",
     },
     {
-      title: "Story-first product updates: release notes people want to read",
-      meta: "Jan 05, 2026 - 4 min read",
-      tag: "Product",
-      accent: "bg-indigo-200",
+      name: "Lisa Wong",
+      role: "Editor",
+      img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&auto=format&fit=crop",
     },
   ];
 
-  const editorPicks = [
-    {
-      title: "The Minimalist Social Stack",
-      blurb: "How to publish everywhere without burning out.",
-      badge: "Playbook",
-      accent: "bg-[#d9f99d]",
-    },
-    {
-      title: "Cover Story: Indie Magazines Making Print Cool Again",
-      blurb: "Tactile joy in a swipe era and what digital can borrow.",
-      badge: "Feature",
-      accent: "bg-[#bfdbfe]",
-    },
-    {
-      title: "Inside the Studio: Building Rituals for Deep Work",
-      blurb: "Small, repeatable actions that stack into momentum.",
-      badge: "Studio",
-      accent: "bg-[#fecdd3]",
-    },
-  ];
-
-  const notebook = [
-    {
-      title: "Color palettes that read fast on mobile",
-      meta: "Sketchbook - 2 min read",
-      tag: "Visual",
-      accent: "bg-indigo-200",
-    },
-    {
-      title: "Questions to ask before publishing a hot take",
-      meta: "Checklist - 3 min read",
-      tag: "Opinion",
-      accent: "bg-emerald-200",
-    },
-    {
-      title: "Templates: hero layouts that hook scrollers",
-      meta: "Toolkit - 4 min read",
-      tag: "Design",
-      accent: "bg-amber-200",
-    },
+  const menuItems = [
+    { name: "Topics", href: "#topics" },
+    { name: "Featured", href: "#featured" },
+    { name: "Creators", href: "#creators" },
+    { name: "Notebook", href: "#notebook" },
   ];
 
   return (
-    <div className="min-h-screen font-sans selection:bg-sky-300 selection:text-black bg-[#f5f7fb] text-black">
-      <header className="bg-white text-black pt-4 border-b-4 border-blue-600 shadow-[0_8px_0_#0f172a]">
-        <nav className="container mx-auto px-4 flex justify-between items-center pb-4 gap-6">
-          <div className="flex items-center gap-3 bg-white border-4 border-black rounded-xl px-3 py-2 shadow-[4px_4px_0px_0px_#0ea5e9]">
-            <img
-              src="/logo.svg"
-              alt="testingme logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div>
-              <h1 className="text-3xl font-black text-black tracking-tighter leading-none">
-                Testingme
-              </h1>
-              <p className="text-[10px] uppercase font-black text-sky-600">
-                Ship ideas with clarity
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:flex gap-4 font-bold uppercase text-xs tracking-widest items-center">
-            {[
-              {
-                label: "Home",
-                links: ["Overview", "Releases", "Changelog"],
-                image:
-                  "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=600&auto=format&fit=crop",
-              },
-              {
-                label: "Stories",
-                links: ["All", "Trending", "Deep Dives"],
-                image:
-                  "https://images.unsplash.com/photo-1529333166433-94e17876c6b6?q=80&w=600&auto=format&fit=crop",
-              },
-              {
-                label: "Playbooks",
-                links: ["Launch Kits", "Onboarding", "Growth"],
-                image:
-                  "https://images.unsplash.com/photo-1483478550801-ceba5fe50e8e?q=80&w=600&auto=format&fit=crop",
-              },
-              {
-                label: "Library",
-                links: ["Templates", "Guides", "Assets"],
-                image:
-                  "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=600&auto=format&fit=crop",
-              },
-              {
-                label: "About",
-                links: ["Team", "Values", "Contact"],
-                image:
-                  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&auto=format&fit=crop",
-              },
-            ].map((item) => (
-              <div key={item.label} className="relative group">
-                <button className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                  {item.label}
-                </button>
-                <div className="pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100 opacity-0 translate-y-2 group-hover:translate-y-0 transition-all duration-200 absolute left-1/2 -translate-x-1/2 mt-3 bg-white border-2 border-black rounded-2xl shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] min-w-[260px] z-30">
-                  <div className="relative overflow-hidden rounded-t-2xl">
-                    <img
-                      src={item.image}
-                      alt={item.label}
-                      className="h-28 w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                    <p className="absolute bottom-2 left-3 text-white text-xs font-black uppercase">
-                      {item.label}
-                    </p>
-                  </div>
-                  <div className="p-3 space-y-2">
-                    {item.links.map((link) => (
-                      <a
-                        key={link}
-                        href="#"
-                        className="block text-[11px] font-black uppercase hover:text-blue-600"
-                      >
-                        {link}
-                      </a>
-                    ))}
-                  </div>
-                </div>
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-pink-300 selection:text-black">
+      {/* Navigation */}
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 border-b-2 border-black ${
+          isScrolled ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-white"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <a
+            href="#"
+            className="flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer"
+          >
+            {/* Logo integration as requested */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-black rounded-lg translate-y-1 translate-x-1 transition-transform group-hover:translate-x-2 group-hover:translate-y-2"></div>
+              <div className="relative bg-yellow-300 border-2 border-black px-2 py-1 rounded-lg">
+                <img
+                  src="/logo.svg"
+                  alt="TM Logo"
+                  className="w-8 h-8 object-contain"
+                />
               </div>
+            </div>
+            <span className="text-2xl font-black tracking-tight hidden sm:block">
+              TestingMe
+            </span>
+          </a>
+
+          <div className="hidden lg:flex items-center gap-2 font-bold text-sm">
+            {/* Cool Dropdown for Stories */}
+            <div className="relative group px-4 py-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+              <span className="flex items-center gap-1">
+                Stories{" "}
+                <ArrowRight
+                  size={14}
+                  className="rotate-90 group-hover:-rotate-90 transition-transform"
+                />
+              </span>
+              <NavDropdown
+                items={["Tech", "Desgin", "Culture", "Future", "Tutorials"]}
+              />
+            </div>
+
+            {menuItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {item.name}
+              </a>
             ))}
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 uppercase font-bold text-xs border-l border-gray-300 pl-4 text-gray-700">
-              Search <Search size={16} />
-            </div>
-            <div className="hidden md:flex gap-2">
-              <BrutalButton className="bg-white text-black border-black px-4 py-2">
-                Log in
-              </BrutalButton>
-              <BrutalButton className="bg-blue-600  border-black px-4 py-2">
-                Sign up
-              </BrutalButton>
-            </div>
-            <Menu className="md:hidden" />
-          </div>
-        </nav>
+            <motion.button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              whileHover={{ rotate: 90 }}
+              className="p-2 hover:bg-gray-100 rounded-lg border-2 border-black transition-all lg:hidden relative z-50"
+            >
+              {isMobileMenuOpen ? (
+                <X size={24} strokeWidth={2.5} />
+              ) : (
+                <Menu size={24} strokeWidth={2.5} />
+              )}
+            </motion.button>
 
-        <div className="container mx-auto flex flex-col lg:flex-row min-h-[680px] gap-8">
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="lg:w-1/2 bg-gradient-to-br from-[#0f172a] via-[#0b2340] to-[#2563eb] flex flex-col justify-center p-10 lg:p-16 relative overflow-hidden text-white rounded-3xl shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
-          >
-            <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-400 rounded-full blur-3xl opacity-30"></div>
-            <div className="absolute -right-12 bottom-0 w-48 h-48 bg-blue-600 rounded-full blur-3xl opacity-30"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.25),transparent_45%)]" />
-
-            <p className="text-blue-200 font-handwriting text-4xl mb-3 rotate-[-4deg] w-fit">
-              Fresh Issue
-            </p>
-            <h1 className="text-6xl lg:text-8xl font-black leading-[0.9] mb-10 tracking-tighter">
-              testingme
-              <br />
-              Creator Gazette 2026
-            </h1>
-            <p className="text-blue-100 text-sm font-semibold leading-relaxed max-w-xl mb-8">
-              Essays, playbooks, and field notes on crafting unforgettable
-              digital stories. Built for creators who publish with courage and
-              taste.
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              <BrutalButton
-                icon={Sparkles}
-                className="bg-white text-black border-black"
+            <div className="hidden sm:flex items-center gap-3">
+              <NeoButton
+                variant="ghost"
+                icon={LogIn}
+                className="hidden md:flex"
               >
-                Start Reading
-              </BrutalButton>
-              <BrutalButton icon={Share2} className="bg-blue-500  border-black">
-                Subscribe
-              </BrutalButton>
+                Login
+              </NeoButton>
+              <NeoButton variant="primary" icon={User}>
+                Sign Up
+              </NeoButton>
             </div>
+          </div>
+        </div>
 
-            <div className="mt-10 grid grid-cols-2 gap-3 text-[11px] uppercase font-black tracking-widest text-black">
-              {[
-                "Design Systems",
-                "Publishing Ops",
-                "Brand Story",
-                "Audience Signals",
-              ].map((pill) => (
-                <span
-                  key={pill}
-                  className="bg-white px-3 py-2 rounded-full border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2"
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: "100%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-0 bg-yellow-300 z-40 flex flex-col items-center justify-center p-8 lg:hidden"
+            >
+              <div className="flex flex-col gap-6 w-full max-w-sm text-center">
+                {menuItems.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-4xl font-black hover:text-white transition-colors uppercase"
+                  >
+                    {item.name}
+                  </a>
+                ))}
+                <div className="h-1 bg-black w-full my-6 opacity-20"></div>
+                <NeoButton
+                  className="w-full justify-center text-xl py-4"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <CheckCircle2 size={14} className="text-blue-600" /> {pill}
-                </span>
-              ))}
-            </div>
+                  Sign Up Now
+                </NeoButton>
+                <NeoButton
+                  variant="ghost"
+                  className="w-full justify-center text-xl py-4"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Member Login
+                </NeoButton>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
 
-            <div className="mt-8 grid grid-cols-2 gap-3 text-left text-xs font-mono">
-              {[
-                { label: "Uptime", value: "99.9%" },
-                { label: "Subscribers", value: "15k" },
-                { label: "UX Score", value: "4.9" },
-                { label: "Words", value: "2.5k" },
-              ].map((stat) => (
-                <motion.div
-                  key={stat.label}
-                  whileHover={{ y: -2 }}
-                  className="bg-white/10 border border-white/30 rounded-xl px-4 py-3 backdrop-blur-sm flex items-center justify-between"
-                >
-                  <span className="text-white font-semibold uppercase tracking-widest">
-                    {stat.label}
+      <main className="pt-32 pb-20 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-32">
+          {/* Hero Section */}
+          <section
+            id="hero"
+            className="grid lg:grid-cols-12 gap-12 items-center relative"
+          >
+            <div className="lg:col-span-6 relative z-10 space-y-8 order-2 lg:order-1">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {["#DESIGN", "#TECH", "#CULTURE"].map((tag, i) => (
+                    <span
+                      key={i}
+                      className="bg-black text-white px-3 py-1 rounded-lg font-black text-xs border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <h1 className="text-6xl md:text-[6rem] font-black leading-[0.9] tracking-tight mb-8 font-display text-black">
+                  READ. <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                    CREATE.
                   </span>
-                  <span className="text-blue-200 font-black">{stat.value}</span>
+                  <br />
+                  <span className="relative inline-block">
+                    DISRUPT.
+                    <svg
+                      className="absolute w-full h-4 -bottom-1 left-0 text-yellow-300 -z-10"
+                      viewBox="0 0 100 10"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0 5 Q 50 10 100 5"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                      />
+                    </svg>
+                  </span>
+                </h1>
+
+                <p className="text-xl text-gray-700 font-bold max-w-lg leading-relaxed border-l-4 border-black pl-6">
+                  The blog for those who break things. Discover raw stories,
+                  unfiltered tutorials, and the bleeding edge of tech.
+                </p>
+
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <NeoButton
+                    className="h-14 px-8 text-lg"
+                    variant="primary"
+                    icon={Sparkles}
+                    href="/blog"
+                  >
+                    Start Reading
+                  </NeoButton>
+                  <NeoButton
+                    className="h-14 px-8 text-lg"
+                    variant="secondary"
+                    icon={ArrowRight}
+                  >
+                    Our Mission
+                  </NeoButton>
+                </div>
+              </motion.div>
+            </div>
+
+            <div className="lg:col-span-6 min-h-[400px] lg:min-h-[600px] relative order-1 lg:order-2 flex items-center justify-center">
+              {/* Cool Image Grid Layout for Hero */}
+              <div className="relative w-full h-full max-w-lg lg:max-w-none mx-auto">
+                {/* Decorative background shape */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 50,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-0 pointer-events-none"
+                />
+
+                {/* Left Floating Card - Hidden on very small screens */}
+                <div className="absolute top-0 right-10 w-48 h-60 lg:w-64 lg:h-80 z-20 hidden sm:block">
+                  <NeoCard className="h-full p-2 bg-yellow-300 rotate-6 hover:rotate-0 transition-transform">
+                    <img
+                      src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop"
+                      className="w-full h-full object-cover rounded-xl border-2 border-black grayscale hover:grayscale-0 transition-all"
+                      alt="Tech 1"
+                    />
+                  </NeoCard>
+                </div>
+
+                {/* Right Floating Card - Hidden on very small screens */}
+                <div className="absolute bottom-10 left-10 w-56 h-48 lg:w-72 lg:h-64 z-10 hidden sm:block">
+                  <NeoCard className="h-full p-2 bg-pink-300 -rotate-3 hover:rotate-0 transition-transform">
+                    <img
+                      src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1000&auto=format&fit=crop"
+                      className="w-full h-full object-cover rounded-xl border-2 border-black grayscale hover:grayscale-0 transition-all"
+                      alt="Tech 2"
+                    />
+                  </NeoCard>
+                </div>
+
+                {/* Center Main Slider */}
+                <div className="relative z-30 w-full aspect-square sm:w-80 sm:h-80 lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-80 lg:aspect-square mx-auto">
+                  <ImageSlider images={heroImages} />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* New Section: Trending Topics Grid */}
+          <section id="topics">
+            <div className="flex items-center gap-4 mb-10">
+              <div className="h-1 flex-1 bg-black"></div>
+              <h2 className="text-4xl font-black font-display text-center uppercase">
+                Popular Topics
+              </h2>
+              <div className="h-1 flex-1 bg-black"></div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {trendingTopics.map((topic, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ y: -10, rotate: i % 2 === 0 ? 2 : -2 }}
+                  className="relative aspect-square rounded-2xl border-2 border-black overflow-hidden group cursor-pointer shadow-[6px_6px_0px_0px_#000]"
+                >
+                  <img
+                    src={topic.image}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0"
+                    alt=""
+                  />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 border-t-2 border-black translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="font-black text-center">{topic.title}</h3>
+                  </div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-300 px-3 py-1 border-2 border-black rounded-lg font-black -rotate-6 group-hover:opacity-0 transition-opacity">
+                    {topic.title}
+                  </div>
                 </motion.div>
               ))}
             </div>
-          </motion.div>
+          </section>
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="lg:w-1/2 relative min-h-[420px]"
+          {/* Featured Sections */}
+          <section id="featured">
+            <div className="flex items-end justify-between mb-12 border-b-4 border-black pb-4">
+              <div>
+                <h2 className="text-4xl md:text-6xl font-black font-display mb-4">
+                  Fresh Drops
+                </h2>
+                <p className="text-xl text-gray-600 font-bold bg-yellow-200 inline-block px-2 transform -rotate-1 border-2 border-transparent">
+                  Curated just for you this week.
+                </p>
+              </div>
+              <NeoButton
+                variant="secondary"
+                className="hidden md:flex"
+                href="/blog"
+              >
+                View All Stories <ArrowRight size={20} />
+              </NeoButton>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredStories.map((story, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1, type: "spring" }}
+                  viewport={{ once: true }}
+                >
+                  <StoryCard {...story} />
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* Creators Section */}
+          <section
+            id="creators"
+            className="bg-black text-white -mx-6 px-6 py-20 relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/70 via-transparent to-transparent z-10 rounded-3xl"></div>
-            <img
-              src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2070&auto=format&fit=crop"
-              alt="Modern workspace"
-              className="w-full h-full object-cover rounded-3xl border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
-            />
+            {/* Background pattern */}
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage:
+                  "radial-gradient(#4b5563 1px, transparent 1px)",
+                backgroundSize: "30px 30px",
+              }}
+            ></div>
 
-            <div className="absolute bottom-8 right-8 bg-white border-2 border-black rounded-2xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] max-w-xs z-20">
-              <div className="flex items-center gap-2 text-xs font-black uppercase mb-2">
-                <PenLine size={16} /> Live Drafting
+            <div className="max-w-7xl mx-auto relative z-10">
+              <div className="text-center mb-16">
+                <h2 className="text-5xl md:text-7xl font-black font-display mb-6">
+                  Meet the Minds
+                </h2>
+                <p className="text-xl max-w-2xl mx-auto text-gray-300 font-medium">
+                  The brilliant weirdos bringing you the content you didn't know
+                  you needed.
+                </p>
               </div>
-              <p className="text-sm font-semibold text-gray-800">
-                "Writing is a sport. Train like one."
-              </p>
-              <div className="mt-3 flex items-center gap-2 text-[11px] font-mono uppercase text-gray-500">
-                <Calendar size={12} /> Updated Daily
+
+              <div className="flex flex-wrap justify-center gap-12">
+                {creators.map((creator, i) => (
+                  <motion.div
+                    key={i}
+                    whileHover={{ scale: 1.1 }}
+                    className="flex flex-col items-center gap-4 group cursor-pointer"
+                  >
+                    <div className="w-32 h-32 rounded-full border-4 border-yellow-300 p-1 bg-white relative">
+                      <img
+                        src={creator.img}
+                        className="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all"
+                        alt=""
+                      />
+                      <div className="absolute -bottom-2 -right-2 bg-blue-500 p-2 rounded-full border-2 border-black">
+                        <Sparkles size={16} fill="white" />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <h4 className="font-black text-xl">{creator.name}</h4>
+                      <span className="text-yellow-300 font-bold">
+                        {creator.role}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="mt-16 text-center">
+                <NeoButton
+                  variant="secondary"
+                  className="border-white text-black hover:bg-yellow-300"
+                >
+                  Join the Team
+                </NeoButton>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </header>
+          </section>
 
-      <section className="bg-[#e5f0ff] py-16 px-4 relative border-b-4 border-black">
-        <div className="container mx-auto mb-12 flex items-center gap-4">
-          <h2 className="text-4xl font-black uppercase">Featured Stories</h2>
-          <div className="h-2 flex-1 bg-transparent border-t-4 border-black border-double"></div>
-        </div>
+          {/* Notebook / Trending Section */}
+          <section id="notebook" className="grid lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-8">
+              <div className="bg-blue-50 border-4 border-black rounded-[2.5rem] p-8 md:p-12 shadow-[12px_12px_0px_0px_#000] relative overflow-hidden">
+                <div className="relative z-10">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="bg-black p-3 rounded-xl rotate-3">
+                      <PenLine size={32} className="text-white" />
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-black">
+                      The Notebook
+                    </h3>
+                  </div>
 
-        <div className="container mx-auto relative">
-          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-2 -ml-1 z-0">
-            <svg height="100%" width="20" className="overflow-visible">
-              <path
-                d="M10 0 Q 20 20 10 40 T 10 80 T 10 120 T 10 160 T 10 200 T 10 240 T 10 280 T 10 320 T 10 360 T 10 400"
-                fill="none"
-                stroke="#0ea5e9"
-                strokeWidth="4"
-              />
-            </svg>
-          </div>
+                  <div className="space-y-4">
+                    {[
+                      {
+                        title:
+                          "5 Rules for designing dense data tables in 2024",
+                        meta: "Yesterday • 3 min read",
+                        tag: "UI Pattern",
+                      },
+                      {
+                        title: "React 19 Hooks: What's actually changing?",
+                        meta: "2 days ago • 8 min read",
+                        tag: "Dev",
+                      },
+                      {
+                        title: "The psychology of 'Cancel' buttons",
+                        meta: "Oct 20 • 4 min read",
+                        tag: "UX Research",
+                      },
+                      {
+                        title: "Why CSS Variables are a superpower",
+                        meta: "Oct 25 • 6 min read",
+                        tag: "CSS",
+                      },
+                    ].map((post, i) => (
+                      <PostItem key={i} {...post} />
+                    ))}
+                  </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
-            {featuredStories.map((story, idx) => (
-              <StoryCard key={idx} {...story} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-14 px-4 border-b-4 border-black">
-        <div className="container mx-auto grid lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <h3 className="text-3xl font-black uppercase">Trending Now</h3>
-              <Tag className="text-sky-500" />
+                  <div className="mt-10 pt-6 border-t-4 border-black border-dashed flex justify-center">
+                    <NeoButton
+                      variant="secondary"
+                      className="w-full justify-center"
+                    >
+                      Load more scratches
+                    </NeoButton>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="bg-[#e0f2fe] border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <div className="p-6">
-                {trendingPosts.map((item, idx) => (
-                  <PostItem key={idx} {...item} />
+
+            <div className="lg:col-span-4 space-y-8">
+              {/* Newsletter Box */}
+              <div className="bg-pink-300 border-4 border-black rounded-[2.5rem] p-8 shadow-[12px_12px_0px_0px_#000] text-center transform hover:rotate-1 transition-transform duration-300">
+                <div className="w-20 h-20 bg-white border-2 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <Mail size={40} />
+                </div>
+                <h3 className="text-3xl font-black mb-4">Join the Cult.</h3>
+                <p className="font-bold mb-8 text-black/80">
+                  Get our weekly breakdown of what matters in tech & design. No
+                  spam, just ham.
+                </p>
+                <div className="space-y-4">
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    className="w-full px-5 py-4 rounded-xl border-2 border-black font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] transition-all"
+                  />
+                  <NeoButton
+                    className="w-full justify-center bg-black text-white hover:bg-gray-800"
+                    variant="primary"
+                  >
+                    Access Granted
+                  </NeoButton>
+                </div>
+              </div>
+
+              {/* Socials */}
+              <div className="flex flex-wrap gap-4 justify-center">
+                {[Twitter, Linkedin, Github].map((Icon, i) => (
+                  <motion.button
+                    key={i}
+                    whileHover={{ scale: 1.1, rotate: 10 }}
+                    className="p-4 bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000]"
+                  >
+                    <Icon size={24} strokeWidth={2.5} />
+                  </motion.button>
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 uppercase text-xs font-black tracking-widest">
-              <Sparkles className="text-yellow-400" /> Editor's Desk
-            </div>
-            {editorPicks.map((pick, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ translateX: 4, translateY: -4, rotate: -1 }}
-                className={`p-5 border-[3px] border-black rounded-2xl shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] bg-white ${pick.accent}`}
-              >
-                <span className="text-[10px] uppercase font-black tracking-widest bg-black text-white px-2 py-1 inline-block mb-3">
-                  {pick.badge}
-                </span>
-                <h4 className="text-lg font-black mb-2 leading-tight">
-                  {pick.title}
-                </h4>
-                <p className="text-sm font-semibold text-gray-700">
-                  {pick.blurb}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+          </section>
         </div>
-      </section>
+      </main>
 
-      <section className="bg-[#111827] text-white py-16 px-4 border-y-4 border-black">
-        <div className="container mx-auto grid lg:grid-cols-3 gap-10 items-center">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-3">
-              <Flame className="text-amber-400" />
-              <h3 className="text-3xl font-black uppercase">Notebook Drops</h3>
-            </div>
-            <p className="text-gray-300 font-semibold max-w-2xl">
-              Fast, tactical notes straight from the writing floor. Steal the
-              prompts, swipe the layouts, remix the rituals.
-            </p>
-            <div className="grid md:grid-cols-3 gap-4">
-              {notebook.map((note, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white text-black border-[3px] border-black rounded-2xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-                >
-                  <span className="text-[10px] uppercase font-black tracking-widest bg-black text-white px-2 py-1 inline-block mb-3">
-                    {note.tag}
-                  </span>
-                  <h4 className="font-black leading-tight mb-2">
-                    {note.title}
-                  </h4>
-                  <p className="text-xs font-mono text-gray-600 uppercase">
-                    {note.meta}
-                  </p>
+      {/* Footer */}
+      <footer className="border-t-4 border-black bg-yellow-300 pt-0 pb-12 overflow-hidden relative">
+        {/* Marquee */}
+        <div className="bg-black text-white py-3 overflow-hidden border-b-4 border-black">
+          <motion.div
+            animate={{ x: [0, -1000] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
+            className="flex gap-8 whitespace-nowrap font-black text-2xl uppercase tracking-widest"
+          >
+            {Array(10)
+              .fill("Testing Me • Disrupt • Create • Ship •")
+              .map((text, i) => (
+                <span key={i}>{text}</span>
+              ))}
+          </motion.div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 pt-24 relative z-10">
+          <div className="grid md:grid-cols-4 gap-12 mb-20">
+            <div className="col-span-2">
+              <div className="relative inline-block mb-6">
+                <div className="absolute inset-0 bg-black rounded-xl translate-x-2 translate-y-2"></div>
+                <div className="relative bg-white border-2 border-black px-6 py-4 rounded-xl inline-block">
+                  <img
+                    src="/logo.svg"
+                    alt="TestingMe"
+                    className="h-12 w-auto"
+                  />
                 </div>
-              ))}
+              </div>
+              <p className="font-bold text-xl max-w-sm">
+                We build tools for the builders. <br />
+                We tell stories for the dreamers.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-black text-lg mb-6 uppercase tracking-wider">
+                Platform
+              </h4>
+              <ul className="space-y-4 font-bold">
+                {["Home", "Stories", "Guides", "Pricing"].map((i) => (
+                  <li key={i}>
+                    <a
+                      href="#"
+                      className="hover:underline decoration-2 underline-offset-4"
+                    >
+                      {i}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-black text-lg mb-6 uppercase tracking-wider">
+                Company
+              </h4>
+              <ul className="space-y-4 font-bold">
+                {["About", "Careers", "Legal", "Contact"].map((i) => (
+                  <li key={i}>
+                    <a
+                      href="#"
+                      className="hover:underline decoration-2 underline-offset-4"
+                    >
+                      {i}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          <div className="bg-white text-black border-4 border-black rounded-3xl p-6 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-            <div className="flex items-center gap-2 text-xs font-black uppercase mb-3">
-              <Bookmark size={16} /> Bookmark Bar
-            </div>
-            <p className="text-sm font-semibold text-gray-700 mb-4">
-              Save the best layouts, rituals, and prompts. Delivered Sundays.
-            </p>
-            <div className="flex flex-col gap-3">
-              <input
-                className="w-full px-4 py-3 border-2 border-black rounded-xl font-semibold"
-                placeholder="Email for the drop"
-              />
-              <BrutalButton
-                icon={ArrowRight}
-                className="bg-sky-300 border-black text-black justify-center"
+          <div
+            className="absolute bottom-0 left-0 right-0 h-64 opacity-5 pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(#000 2px, transparent 2px)",
+              backgroundSize: "20px 20px",
+            }}
+          ></div>
+
+          <div className="flex flex-col md:flex-row justify-between items-center mt-12 pt-8 border-t-2 border-black font-bold text-sm">
+            <p>&copy; 2026 TestingMe Inc. Crafted with pure chaos.</p>
+            <div className="flex gap-6 mt-4 md:mt-0">
+              <a
+                href="#"
+                className="hover:bg-black hover:text-white px-2 py-1 transition-colors"
               >
-                Subscribe Free
-              </BrutalButton>
-            </div>
-            <p className="text-[11px] font-mono text-gray-500 mt-3 uppercase">
-              No spam. Only proof-of-work ideas.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-14 px-4 border-b-4 border-black">
-        <div className="container mx-auto flex flex-col lg:flex-row items-center gap-10">
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-              <Tag size={14} /> Explore Topics
-            </div>
-            <h3 className="text-4xl font-black uppercase">
-              Dive into the stacks
-            </h3>
-            <p className="text-gray-700 font-semibold max-w-xl">
-              Curated shelves for creators: pick a lane, binge the best, and
-              bookmark the rest.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              {[
-                "Narrative Design",
-                "Publishing Systems",
-                "Visual Riffs",
-                "Creator Business",
-                "Writing Rituals",
-                "Audience Science",
-              ].map((topic) => (
-                <span
-                  key={topic}
-                  className="px-3 py-2 bg-[#e0f2fe] border-2 border-black rounded-full font-black text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-transform"
-                >
-                  {topic}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1 bg-[#e0f2fe] border-4 border-black rounded-3xl p-6 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-            <div className="flex items-center gap-2 text-xs font-black uppercase mb-3">
-              <ArrowRight size={16} /> Quick Dispatch
-            </div>
-            <p className="text-lg font-black mb-4 leading-tight">
-              Get the 5-minute briefing every Monday.
-            </p>
-            <p className="text-sm font-semibold text-gray-700 mb-6">
-              A sharp stack of 3 ideas, 2 design riffs, and 1 prompt to publish
-              before coffee gets cold.
-            </p>
-            <div className="flex gap-3">
-              <BrutalButton
-                icon={Sparkles}
-                className="bg-black text-white border-black"
+                Privacy
+              </a>
+              <a
+                href="#"
+                className="hover:bg-black hover:text-white px-2 py-1 transition-colors"
               >
-                Join Briefing
-              </BrutalButton>
-              <BrutalButton
-                icon={Share2}
-                className="bg-white text-black border-black"
+                Terms
+              </a>
+              <a
+                href="#"
+                className="hover:bg-black hover:text-white px-2 py-1 transition-colors"
               >
-                Share
-              </BrutalButton>
+                Sitemap
+              </a>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-black text-white py-8 px-4">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <p className="text-sm font-mono uppercase text-gray-400">
-              Built for writers who ship
-            </p>
-            <h4 className="text-2xl font-black">Stay bold, stay publishing.</h4>
-          </div>
-          <div className="flex gap-3">
-            <BrutalButton
-              className="bg-white text-black border-black"
-              icon={ArrowRight}
-            >
-              Submit a Story
-            </BrutalButton>
-            <BrutalButton
-              className="bg-sky-300 text-black border-black"
-              icon={PenLine}
-            >
-              Pitch Us
-            </BrutalButton>
           </div>
         </div>
       </footer>
