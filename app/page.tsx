@@ -430,17 +430,30 @@ export default function Home() {
           >
             {/* Logo integration as requested */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-black rounded-lg translate-y-1 translate-x-1 transition-transform group-hover:translate-x-2 group-hover:translate-y-2"></div>
-              <div className="relative bg-yellow-300 border-2 border-black px-2 py-1 rounded-lg">
-                <img
-                  src="/logo.svg"
-                  alt="TM Logo"
-                  className="w-8 h-8 object-contain"
+              <div className="relative group">
+                <motion.div
+                  className="absolute inset-0 bg-black rounded-lg translate-y-1 translate-x-1 transition-transform group-hover:translate-x-2 group-hover:translate-y-2"
+                  whileHover={{ scale: 1.05 }}
                 />
+                <motion.div
+                  className="relative border-2 border-black px-3 py-2 rounded-lg bg-white shadow-[4px_4px_0px_0px_#000]"
+                  whileHover={{
+                    y: -4,
+                    x: -2,
+                    boxShadow: "8px 8px 0px 0px #000",
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <img
+                    src="/logo.svg"
+                    alt="TM Logo"
+                    className="w-10 h-10 object-contain"
+                  />
+                </motion.div>
               </div>
             </div>
             <span className="text-2xl font-black tracking-tight hidden sm:block">
-              TestingMe
+              Testing<span className="text-blue-500">Me</span>
             </span>
           </a>
 
